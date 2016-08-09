@@ -15,6 +15,7 @@
  */
 
 //[START all]
+package com.google.starterapp;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -37,6 +38,8 @@ public class RSVPServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();  // Find whom user is
     //TODO get event, add RSVP to it
+
+    resp.sendRedirect("/parties.jsp"); //TODO update this
   }
 
 }

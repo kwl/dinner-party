@@ -4,15 +4,31 @@
          xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
          version="2.5">
+
+<!-- [START standard_mappings] -->
   <servlet>
     <servlet-name>HelloAppEngine</servlet-name>
     <servlet-class>com.google.starterapp.HelloAppEngine</servlet-class>
   </servlet>
+
   <servlet-mapping>
     <servlet-name>HelloAppEngine</servlet-name>
     <url-pattern>/hello</url-pattern>
   </servlet-mapping>
+
+  <servlet>
+    <servlet-name>rsvp</servlet-name>
+    <servlet-class>com.google.starterapp.RSVPServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>rsvp</servlet-name>
+    <url-pattern>/rsvp</url-pattern>
+  </servlet-mapping>
+
   <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
+    <welcome-file><!-- index.html -->parties.jsp</welcome-file>
   </welcome-file-list>
+<!-- [END standard_mappings] -->
+
 </web-app>
