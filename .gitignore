@@ -1,0 +1,4 @@
+# Ignore target build stuff (class files) and eclipse stuff 
+target/
+eclipse-launch-profiles/
+
