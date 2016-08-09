@@ -6,7 +6,7 @@
          version="2.5">
 
 <!-- [START standard_mappings] -->
-  <servlet>
+<!--   <servlet>
     <servlet-name>HelloAppEngine</servlet-name>
     <servlet-class>com.google.starterapp.HelloAppEngine</servlet-class>
   </servlet>
@@ -14,11 +14,11 @@
   <servlet-mapping>
     <servlet-name>HelloAppEngine</servlet-name>
     <url-pattern>/hello</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping> -->
 
   <servlet>
     <servlet-name>rsvp</servlet-name>
-    <servlet-class>com.google.starterapp.RSVPServlet</servlet-class>
+    <servlet-class>dinnerparty.RSVPServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

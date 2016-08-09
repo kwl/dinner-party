@@ -15,7 +15,7 @@
  */
 
 //[START all]
-package com.google.starterapp;
+package dinnerparty;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
