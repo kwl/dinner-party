@@ -1,32 +1,43 @@
 <%-- //[START all]--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="javax.mail.Message" %>
-<%@ page import="javax.mail.MessagingException" %>
-<%@ page import="javax.mail.Session" %>
-<%@ page import="javax.mail.Transport" %>
-<%@ page import="javax.mail.internet.AddressException" %>
-<%@ page import="javax.mail.internet.InternetAddress" %>
-<%@ page import="javax.mail.internet.MimeMessage" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.Key" %>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
 
 
 <html>
 <head>
-	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+  <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
 </head>
 
 <body>
 
 <%
-	String name = request.getParameter("eventName");
+  //String name = request.getParameter("eventName");
+  String event = request.getParameter("eventKey");
+  String name;
+  if (event != null) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Key eventKey = KeyFactory.stringToKey(event);
+    name = (String) datastore.get(eventKey).getProperty("name");
+  } else {
+    name = request.getParameter("eventName");
+  }
 %>
 
 <p><h2><%=name%></h2></p>
+<!-- <form action="/event" method="get">
+  <input type="hidden" name="eventKey" 
+</form> -->
 
 <form action="/invite" method="post">
-	<label for="invite">Invite guest (username@gmail.com):</label>
-	<input type="text" name="guest" id="invite">
-	<input type="hidden">
-	<input type="submit" value="Share">
+  <label for="invite">Invite guest (username@gmail.com):</label>
+  <input type="text" name="guest" id="invite">
+  <input type="hidden" name="eventName" value=<%=name%>>
+  <input type="hidden" name="eventKey" value=<%=event%>>
+  <input type="submit" value="Share">
 </form>
 
 

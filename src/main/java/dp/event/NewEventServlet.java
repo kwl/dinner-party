@@ -26,6 +26,9 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import dp.guests.AddGuestServlet;
+import dp.util.ActionUtil;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -53,14 +56,16 @@ public class NewEventServlet extends HttpServlet {
         event.setProperty("name", eventName);
         event.setProperty("host", user);
 
-        // DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        // datastore.put(event);
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        datastore.put(event);
 
         //TODO add event to user (or user to event as owner)?
+        AddGuestServlet.addGuest(event.getKey(), user.getEmail());
 
         //String eventName = getBody(req);
 
-        resp.sendRedirect("/event.jsp?eventName="+eventName); //TODO update this
+        //resp.sendRedirect("/event.jsp?eventName="+eventName); //TODO update this
+        ActionUtil.gotoEvent(this, resp, KeyFactory.keyToString(event.getKey()));
     }
 
 

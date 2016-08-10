@@ -1,6 +1,10 @@
 package dp.guests;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -29,14 +33,29 @@ public class AddGuestServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    Key key = null; //TODO fix this!!
+
+    //String eventName = req.getParameter("eventName");
+    String event = req.getParameter("eventKey");
     String guestEmail = req.getParameter("guest");
-    // addGuest(key, guestEmail);
+    //TODO fix eventKey... where to get this?
+    Key eventKey = KeyFactory.createKey("Guest", guestEmail);
+    addGuest(eventKey, guestEmail);
 
     // Send email to invite guest
     emailInvite(guestEmail);
-    //TODO redirect to right event page. some kind of event key? eventName stored in http request header?
-    resp.sendRedirect("/event.jsp?"); // "...?" + event id 
+    resp.sendRedirect("/event.jsp?eventKey="+event); // "...?" + event id 
+  }
+
+  /**
+   * Add a guest to the datastore with event as entity parent
+   */
+  public static void addGuest(Key eventKey, String guestEmail) {
+    Entity guest = new Entity("Guest", eventKey); // event: parent
+    guest.setProperty("user", guestEmail);
+    // Set repeated property listing post IDs
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(guest);
   }
 
   private void emailInvite(String emailAddr) {
