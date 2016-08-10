@@ -30,6 +30,9 @@
 </form>
 
 
+<p><h4>Guests</h4></p>
+<!-- TODO list guests, from datastore -->
+
 <p><a href="parties.jsp">Homepage</a></p>
 
 </body>

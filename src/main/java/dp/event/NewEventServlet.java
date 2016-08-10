@@ -17,6 +17,11 @@
 //[START all]
 package dp.event;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -41,11 +46,21 @@ public class NewEventServlet extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();  // Find whom user is
+
+        // Put new event into datastore
+        Entity event = new Entity("Event");
+        String eventName = req.getParameter("eventName");
+        event.setProperty("name", eventName);
+        event.setProperty("host", user);
+
+        // DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        // datastore.put(event);
+
         //TODO add event to user (or user to event as owner)?
 
-        String event = getBody(req);
+        //String eventName = getBody(req);
 
-        resp.sendRedirect("/event.jsp?"+event); //TODO update this
+        resp.sendRedirect("/event.jsp?eventName="+eventName); //TODO update this
     }
 
 
