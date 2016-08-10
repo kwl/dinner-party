@@ -36,20 +36,22 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NewEventServlet extends HttpServlet {
 
-// Process the http POST of the form: Add RSVP to dinner party event
+    // Create a new event with given name
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();  // Find whom user is
-        //TODO get event, add RSVP to it
+        //TODO add event to user (or user to event as owner)?
 
-        String event = "placeholder"; //TODO fix this, get event name from form
-        event = getBody(req);
+        String event = getBody(req);
 
         resp.sendRedirect("/event.jsp?"+event); //TODO update this
     }
 
 
+    /**
+     * Utility method to get text from a form's POST request
+     */
     public String getBody(HttpServletRequest request) throws IOException {
         // Read from request
         StringBuilder buffer = new StringBuilder();
@@ -57,7 +59,6 @@ public class NewEventServlet extends HttpServlet {
         String line;
         while ((line = reader.readLine()) != null) {
             buffer.append(line);
-            System.out.println("input: " + line + "\n");
         }
         return buffer.toString();
     }

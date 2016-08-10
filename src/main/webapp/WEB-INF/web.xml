@@ -36,15 +36,15 @@
     <url-pattern>/event</url-pattern>
   </servlet-mapping>
 
-  <!-- <servlet>
+  <servlet>
     <servlet-name>Invite</servlet-name>
     <servlet-class>dp.guests.AddGuestServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>Invite</servlet-name>
-    <url-pattern>/event</url-pattern>
-  </servlet-mapping> -->
+    <url-pattern>/invite</url-pattern>
+  </servlet-mapping>
 
   <welcome-file-list>
     <welcome-file><!-- index.html -->parties.jsp</welcome-file>

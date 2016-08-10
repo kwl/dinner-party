@@ -11,17 +11,18 @@
 
 <html>
 <head>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
 </head>
 
 <body>
 
 <%
-	String name = request.getParameter("event");
+	String name = request.getParameter("eventName");
 %>
 
 <p><h2><%=name%></h2></p>
 
-<form action="TODO" method="post">
+<form action="/invite" method="post">
 	<label for="invite">Invite guest (username@gmail.com):</label>
 	<input type="text" name="guest" id="invite">
 	<input type="hidden">

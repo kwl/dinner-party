@@ -30,8 +30,8 @@
 <%	String event = "testEvent"; 
 	//TODO get actual user's events, loop through and display each
 %>
-	<form action="event.jsp?event="+event>
-		<input type="submit" name="event" placeholder="Event" value=<%=event%> />
+	<form action="event.jsp"+event method="get">
+		<input type="submit" name="eventName" placeholder="Event" value=<%=event%> />
 	</form>
 <%
 	//TODO (kathyli) Display events as links to individual pages
@@ -42,7 +42,7 @@
 
 <form action="/event" method="post">
 	<label>Create new dinner party named:</label>
-	<input type="text" name="event">
+	<input type="text" name="eventName">
 	<input type="submit" value="Create event">
 </form>
 
