@@ -15,33 +15,53 @@
  */
 
 //[START all]
-package dinnerparty;
+package dp.event;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+
+import java.lang.StringBuilder;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 /**
  * Form Handling Servlet
  */
-public class RSVPServlet extends HttpServlet {
+public class NewEventServlet extends HttpServlet {
 
 // Process the http POST of the form: Add RSVP to dinner party event
-  @Override
-  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();  // Find whom user is
-    //TODO get event, add RSVP to it
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();  // Find whom user is
+        //TODO get event, add RSVP to it
 
-    resp.sendRedirect("/parties.jsp"); //TODO update this
-  }
+        String event = "placeholder"; //TODO fix this, get event name from form
+        event = getBody(req);
 
-}
+        resp.sendRedirect("/event.jsp?"+event); //TODO update this
+    }
+
+
+    public String getBody(HttpServletRequest request) throws IOException {
+        // Read from request
+        StringBuilder buffer = new StringBuilder();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            buffer.append(line);
+            System.out.println("input: " + line + "\n");
+        }
+        return buffer.toString();
+    }
+
+} // end class
 
 //[END all]
