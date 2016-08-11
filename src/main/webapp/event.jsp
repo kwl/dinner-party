@@ -17,6 +17,7 @@
 <%
   //String name = request.getParameter("eventName");
   String event = request.getParameter("eventKey");
+  System.out.println("event.jsp event param: " + event);
   String name;
   if (event != null) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -43,6 +44,17 @@
 
 <p><h4>Guests</h4></p>
 <!-- TODO list guests, from datastore -->
+<%
+  
+%>
+
+<form action="/rsvp" method="post">
+  <label>What are you bringing?</label>
+  <input type="text" name="bring">
+  <input type="hidden" name="eventName" value=<%=name%>>
+  <input type="hidden" name="eventKey" value=<%=event%>>
+  <input type="submit" value="Go">
+</form>
 
 <p><a href="parties.jsp">Homepage</a></p>
 

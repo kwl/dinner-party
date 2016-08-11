@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ActionUtil {
 
-  public static void gotoEvent(HttpServlet context, HttpServletResponse resp, String event) throws IOException {
-    resp.sendRedirect("/event.jsp?eventKey=" + event);
+  public static void gotoEvent(HttpServlet context, HttpServletResponse resp, String event, String eventName) throws IOException {
+    resp.sendRedirect("/event.jsp?eventKey=" + event + "&eventName=" + eventName);
   }
 
   public static void sendEmail(String receiveAddr, String subject, String body) {

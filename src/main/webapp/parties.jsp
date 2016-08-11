@@ -1,5 +1,12 @@
 <%-- //[START all]--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+<%@ page import="com.google.appengine.api.datastore.Key" %>
+<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Query" %>
 <%@ page import="com.google.appengine.api.users.User" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
@@ -17,8 +24,10 @@
 <p>Hello!</p>
 
 <%
-    UserService userService = UserServiceFactory.getUserService();
-    if (!userService.isUserLoggedIn()) {
+  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+  UserService userService = UserServiceFactory.getUserService();
+  if (!userService.isUserLoggedIn()) {
 %>
   Please <!-- {@code <a href="<%=userService.createLoginURL("/newlogin.jsp")%>">log in</a>>} --><a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>
 <%  } else {
@@ -29,18 +38,27 @@
   <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">Sign out</a>
 
   <h3>Your events</h3>
-<%  String event = "testEvent"; 
-  //TODO get actual user's events, loop through and display each
-%>
-  <!-- <#list events> -->
-    <form action="event.jsp"+event method="get">
-      <input type="submit" name="eventName" placeholder="Event" value=<%=event%> />
-    </form>
-  <!-- </#list> -->
-  
 <%
-  //TODO (kathyli) Display events as links to individual pages
+  String event = "testEvent";
+  String eventKey;
+  //TODO get actual user's events, loop through and display each
+  //Query query = new Query("Event").setFilter(new Query.FilterPredicate("host", Query.FilterOperator.EQUAL, user.getEmail()));
+  Query query = new Query("Event");
+  query.setFilter(new Query.FilterPredicate("host", Query.FilterOperator.EQUAL, user));
+  //query.setKeysOnly();
+  Iterable<Entity> hostedEvents = datastore.prepare(query).asIterable(FetchOptions.Builder.withLimit(30));
+  for (Entity hostEvent: hostedEvents) {
+    event = (String) hostEvent.getProperty("name");
+    eventKey = KeyFactory.keyToString(hostEvent.getKey());
+%>
+  <form action="event.jsp"+event method="get">
+      <input type="hidden" name="eventKey" value=<%=eventKey%> />
+      <input type="submit" name="eventName" placeholder="Event" value=<%=event%> />
+  </form>
+
+<%
     }
+  } // end-else (user is logged in)
 %>
 
 </br></br></br>

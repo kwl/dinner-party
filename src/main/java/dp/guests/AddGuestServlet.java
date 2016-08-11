@@ -38,12 +38,14 @@ public class AddGuestServlet extends HttpServlet {
     String event = req.getParameter("eventKey");
     String guestEmail = req.getParameter("guest");
     //TODO fix eventKey... where to get this?
-    Key eventKey = KeyFactory.createKey("Guest", guestEmail);
+    //Key eventKey = KeyFactory.createKey("Event", event);
+    Key eventKey = KeyFactory.stringToKey(event);
     addGuest(eventKey, guestEmail);
 
     // Send email to invite guest
     emailInvite(guestEmail);
-    resp.sendRedirect("/event.jsp?eventKey="+event); // "...?" + event id 
+    //resp.sendRedirect("/event.jsp?eventKey="+event); // "...?" + event id 
+    ActionUtil.gotoEvent(this, resp, event, req.getParameter("eventName"));
   }
 
   /**
