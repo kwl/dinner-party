@@ -3,6 +3,7 @@
 <%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
 <%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.EntityNotFoundException" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
 <%@ page import="com.google.appengine.api.datastore.Query" %>
@@ -21,20 +22,46 @@
 <body>
 
 <%
-  // Set up for accessing data
-  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-  String eventKeyStr = request.getParameter("eventKey");
-  String name = request.getParameter("eventName");
-  Key eventKey = KeyFactory.stringToKey(eventKeyStr);
-  //String name = (String) datastore.get(eventKey).getProperty("name");
+// Set up for accessing data
+DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+String eventKeyStr = request.getParameter("eventKey");
+String name = request.getParameter("eventName");
+Key eventKey = KeyFactory.stringToKey(eventKeyStr);
+//String name = (String) datastore.get(eventKey).getProperty("name");
 
-  UserService userService = UserServiceFactory.getUserService();
-  if (!userService.isUserLoggedIn()) {
+UserService userService = UserServiceFactory.getUserService();
+if (!userService.isUserLoggedIn()) {
 %>
   <!-- Please <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a> -->
   <p>Please go to <a href="parties.jsp">homepage</a> and log in.</p>
 <%
-  } else { 
+} else { // User is logged in
+  User user = userService.getCurrentUser();
+  String userEmail = user.getEmail();
+  // Check for user being event host or guest to display event
+  Entity event;
+  try {
+    event = datastore.get(eventKey);
+  } catch (EntityNotFoundException e) {
+    event = null;
+    System.out.println("Entity for given event not found");
+    e.printStackTrace();
+  }
+  boolean isGuest = false;
+  ArrayList<String> attendees = (ArrayList<String>) event.getProperty("attendees");
+  for (String email: attendees) {
+    if (email.equals(userEmail)) {
+      isGuest = true;
+      break;
+    }
+  }
+  if (! (((String)event.getProperty("host")).equals(userEmail) ||
+    isGuest)) { // User not event guest or host, can't RSVP
+%>
+<p> Sorry, you do not have permission to see this event. </p>
+<%
+  } // end-if no permissions for event
+  else {
 %>
 
 <p><h2><%=name%></h2></p>
@@ -52,10 +79,10 @@
 </form>
 
 
-<p>
+<div>
 <h4>Host</h4>
 <%= datastore.get(eventKey).getProperty("host") %>
-</p>
+</div>
 
 <!-- List guests and what they're bringing to event in table -->
 <p><h4>Guests</h4></p>
@@ -63,8 +90,8 @@
 <th>Email</th>
 <th>Bringing</th>
 <%
-  @SuppressWarnings("unchecked") // Cast can't verify generic type
-  ArrayList<String> attendees = (ArrayList<String>) datastore.get(eventKey).getProperty("attendees");
+  //@SuppressWarnings("unchecked") // Cast can't verify generic type
+  //ArrayList<String> attendees = (ArrayList<String>) datastore.get(eventKey).getProperty("attendees");
   if (attendees == null) {
     System.out.println("     NULL attendees!!\n");
   }
@@ -107,6 +134,7 @@
 <p><a href="parties.jsp">Homepage</a></p>
 
 <% 
+  } // end-else, content for invited user
 } // end-else, content for logged-in user
 %>
 

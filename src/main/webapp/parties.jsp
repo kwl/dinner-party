@@ -23,6 +23,7 @@
 
 <body>
 
+<p><h2>Potluck Planner</h2></p>
 <p>Hello!</p>
 
 <%
