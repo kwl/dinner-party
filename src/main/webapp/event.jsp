@@ -5,6 +5,7 @@
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="java.util.ArrayList" %>
 
 
 <html>
@@ -15,17 +16,12 @@
 <body>
 
 <%
-  //String name = request.getParameter("eventName");
-  String event = request.getParameter("eventKey");
-  System.out.println("event.jsp event param: " + event);
-  String name;
-  if (event != null) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Key eventKey = KeyFactory.stringToKey(event);
-    name = (String) datastore.get(eventKey).getProperty("name");
-  } else {
-    name = request.getParameter("eventName");
-  }
+  // Set up for accessing data
+  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  String eventKeyStr = request.getParameter("eventKey");
+  String name = request.getParameter("eventName");
+  Key eventKey = KeyFactory.stringToKey(eventKeyStr);
+  //String name = (String) datastore.get(eventKey).getProperty("name");
 %>
 
 <p><h2><%=name%></h2></p>
@@ -37,22 +33,41 @@
   <label for="invite">Invite guest (username@gmail.com):</label>
   <input type="text" name="guest" id="invite">
   <input type="hidden" name="eventName" value=<%=name%>>
-  <input type="hidden" name="eventKey" value=<%=event%>>
+  <input type="hidden" name="eventKey" value=<%=eventKeyStr%>>
   <input type="submit" value="Share">
 </form>
 
 
+<p>
+<h4>Host</h4>
+<%= datastore.get(eventKey).getProperty("host") %>
+</p>
+
 <p><h4>Guests</h4></p>
 <!-- TODO list guests, from datastore -->
 <%
-  
+  @SuppressWarnings("unchecked") // Cast can't verify generic type
+  ArrayList<String> attendees = (ArrayList<String>) datastore.get(eventKey).getProperty("attendees");
+  if (attendees == null) {
+    System.out.println("     NULL attendees!!\n");
+  }
+  String hostEmail = (String) datastore.get(eventKey).getProperty("host");
+  for (String email: attendees) {
+    if (! email.equals(hostEmail)) {
 %>
+    <%=email%></br>
+<%
+    } // end-if email comparison
+  } // end-for all guest emails
+%>
+
+</br></br></br>
 
 <form action="/rsvp" method="post">
   <label>What are you bringing?</label>
   <input type="text" name="bring">
   <input type="hidden" name="eventName" value=<%=name%>>
-  <input type="hidden" name="eventKey" value=<%=event%>>
+  <input type="hidden" name="eventKey" value=<%=eventKeyStr%>>
   <input type="submit" value="Go">
 </form>
 

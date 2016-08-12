@@ -41,10 +41,10 @@
 <%
   String event = "testEvent";
   String eventKey;
-  //TODO get actual user's events, loop through and display each
+  //TODO get all of user's events, not just ones he's hosting
   //Query query = new Query("Event").setFilter(new Query.FilterPredicate("host", Query.FilterOperator.EQUAL, user.getEmail()));
   Query query = new Query("Event");
-  query.setFilter(new Query.FilterPredicate("host", Query.FilterOperator.EQUAL, user));
+  query.setFilter(new Query.FilterPredicate("host", Query.FilterOperator.EQUAL, user.getEmail()));
   //query.setKeysOnly();
   Iterable<Entity> hostedEvents = datastore.prepare(query).asIterable(FetchOptions.Builder.withLimit(30));
   for (Entity hostEvent: hostedEvents) {

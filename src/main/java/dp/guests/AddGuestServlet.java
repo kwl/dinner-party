@@ -3,6 +3,7 @@ package dp.guests;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
@@ -12,6 +13,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import dp.util.ActionUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -58,6 +60,20 @@ public class AddGuestServlet extends HttpServlet {
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(guest);
+
+    // Add guest to repeated prop "attendees" in Event entity
+    try {
+      Entity event = datastore.get(eventKey);
+      @SuppressWarnings("unchecked")
+      ArrayList<String> attendees = (ArrayList<String>) event.getProperty("attendees");
+      attendees.add(guestEmail);
+      event.setProperty("attendees", attendees);
+      datastore.put(event);
+      System.out.println("AddGuestServlet add email to attendees");
+    } catch (EntityNotFoundException e) {
+      System.out.println("AddGuestServlet event entity not found");
+      e.printStackTrace();
+    }
   }
 
   private void emailInvite(String emailAddr) {

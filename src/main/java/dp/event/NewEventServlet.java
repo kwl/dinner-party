@@ -17,6 +17,8 @@ import java.io.IOException;
 
 import java.lang.StringBuilder;
 
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,14 +39,14 @@ public class NewEventServlet extends HttpServlet {
         Entity event = new Entity("Event");
         String eventName = req.getParameter("eventName");
         event.setProperty("name", eventName);
-        event.setProperty("host", user);
+        event.setProperty("host", user.getEmail());
         event.setProperty("description", "");
+        ArrayList<String> attendees = new ArrayList<String>();
+        attendees.add(user.getEmail()); // add host to attending
+        event.setProperty("attendees", attendees);
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         datastore.put(event);
-
-        //TODO add event to user (or user to event as owner)?
-        AddGuestServlet.addGuest(event.getKey(), user.getEmail());
 
         //String eventName = getBody(req);
 
