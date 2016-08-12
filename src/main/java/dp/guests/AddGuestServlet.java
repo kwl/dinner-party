@@ -6,6 +6,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -52,6 +53,8 @@ public class AddGuestServlet extends HttpServlet {
 
   /**
    * Add a guest to the datastore with event as entity parent
+   * Also check if Person exists and create if not, with event
+   * key as property
    */
   public static void addGuest(Key eventKey, String guestEmail) {
     Entity guest = new Entity("Guest", eventKey); // event: parent
@@ -74,6 +77,31 @@ public class AddGuestServlet extends HttpServlet {
     } catch (EntityNotFoundException e) {
       System.out.println("AddGuestServlet event entity not found");
       e.printStackTrace();
+    }
+
+    // Check if Person exists, create if not, add event property
+    UserService userService = UserServiceFactory.getUserService();
+    User user = userService.getCurrentUser();
+    Transaction txn = datastore.beginTransaction();
+    Entity person;
+    Key personKey;
+    try {
+      personKey = KeyFactory.createKey("Person", guestEmail);
+      person = datastore.get(personKey);
+      ArrayList<Key> events = (ArrayList<Key>) person.getProperty("events");
+      events.add(eventKey);
+      person.setProperty("events", events);
+      datastore.put(txn, person);
+      txn.commit();
+    } catch (EntityNotFoundException e) {
+      person = new Entity("Person", guestEmail);
+      ArrayList<Key> events = new ArrayList<Key>();
+      events.add(eventKey);
+      person.setProperty("events", events);
+      datastore.put(txn, person);
+      txn.commit();
+    } finally {
+      if (txn.isActive()) txn.rollback();
     }
   }
 

@@ -31,14 +31,18 @@
   UserService userService = UserServiceFactory.getUserService();
   if (!userService.isUserLoggedIn()) {
 %>
-  Please <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>
-<%} %>
+  <!-- Please <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a> -->
+  <p>Please go to <a href="parties.jsp">homepage</a> and log in.</p>
+<%
+  } else { 
+%>
 
 <p><h2><%=name%></h2></p>
 <!-- <form action="/event" method="get">
   <input type="hidden" name="eventKey" 
 </form> -->
 
+<!-- Invite guests to event via email -->
 <form action="/invite" method="post">
   <label for="invite">Invite guest (username@gmail.com):</label>
   <input type="text" name="guest" id="invite">
@@ -53,8 +57,8 @@
 <%= datastore.get(eventKey).getProperty("host") %>
 </p>
 
+<!-- List guests and what they're bringing to event in table -->
 <p><h4>Guests</h4></p>
-<!-- TODO list guests, from datastore -->
 <table border="1">
 <th>Email</th>
 <th>Bringing</th>
@@ -91,6 +95,7 @@
 
 </br></br></br>
 
+<!-- Submit what signed-in user is bringing to event -->
 <form action="/rsvp" method="post">
   <label>What are you bringing?</label>
   <input type="text" name="bring">
@@ -100,6 +105,10 @@
 </form>
 
 <p><a href="parties.jsp">Homepage</a></p>
+
+<% 
+} // end-else, content for logged-in user
+%>
 
 </body>
 </html>
