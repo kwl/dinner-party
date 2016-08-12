@@ -17,6 +17,13 @@
 //[START all]
 package dp.event;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -37,9 +44,29 @@ public class RSVPServlet extends HttpServlet {
 // Process the http POST of the form: Add RSVP to dinner party event
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();  // Find whom user is
-    //TODO get event, add RSVP to it
+
+    // Add "bringing" RSVP to correct guest & event
+    // Transaction for retrieving and updating Guest
+    String bringing = req.getParameter("bring");
+    String eventKeyStr = req.getParameter("eventKey");
+    Key eventKey = KeyFactory.stringToKey(eventKeyStr);
+    Transaction txn = datastore.beginTransaction();
+    try {
+      Query q = new Query("Guest", eventKey).setFilter(new Query.FilterPredicate("user", Query.FilterOperator.EQUAL, user.getEmail()));
+        Entity guest = datastore.prepare(txn, q).asSingleEntity();
+        guest.setProperty("bringing", bringing);
+        datastore.put(txn, guest);
+      txn.commit();
+    } finally {
+      if (txn.isActive()) {
+        txn.rollback();
+      }
+    }
+
 
     //resp.sendRedirect("/parties.jsp"); //TODO update this
     ActionUtil.gotoEvent(this, resp, req.getParameter("eventKey"), req.getParameter("eventName"));
