@@ -36,7 +36,7 @@ public class AddGuestServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-    //String eventName = req.getParameter("eventName");
+    String eventName = req.getParameter("eventName");
     String event = req.getParameter("eventKey");
     String guestEmail = req.getParameter("guest");
     //TODO fix eventKey... where to get this?
@@ -45,7 +45,7 @@ public class AddGuestServlet extends HttpServlet {
     addGuest(eventKey, guestEmail);
 
     // Send email to invite guest
-    emailInvite(guestEmail);
+    emailInvite(guestEmail, event, eventName);
     //resp.sendRedirect("/event.jsp?eventKey="+event); // "...?" + event id 
     ActionUtil.gotoEvent(this, resp, event, req.getParameter("eventName"));
   }
@@ -56,12 +56,14 @@ public class AddGuestServlet extends HttpServlet {
   public static void addGuest(Key eventKey, String guestEmail) {
     Entity guest = new Entity("Guest", eventKey); // event: parent
     guest.setProperty("user", guestEmail);
+    guest.setProperty("bringing", "");
     // Set repeated property listing post IDs
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(guest);
 
     // Add guest to repeated prop "attendees" in Event entity
+    // TODO make this a transaction
     try {
       Entity event = datastore.get(eventKey);
       @SuppressWarnings("unchecked")
@@ -69,14 +71,13 @@ public class AddGuestServlet extends HttpServlet {
       attendees.add(guestEmail);
       event.setProperty("attendees", attendees);
       datastore.put(event);
-      System.out.println("AddGuestServlet add email to attendees");
     } catch (EntityNotFoundException e) {
       System.out.println("AddGuestServlet event entity not found");
       e.printStackTrace();
     }
   }
 
-  private void emailInvite(String emailAddr) {
+  private void emailInvite(String emailAddr, String eventKey, String eventName) {
     try {
       UserService userService = UserServiceFactory.getUserService();
       User user = userService.getCurrentUser();
@@ -84,8 +85,7 @@ public class AddGuestServlet extends HttpServlet {
       String subject = user.getNickname() + " invites you to a dinner party!";
       String body = "Dear " + emailAddr + ",\n\n" + user.getEmail() + " invites you to the dinner party \"" + //get groupname +
         "\" in Dinner Party Planner. See the event at " +
-        "http://august-storm-139422.appspot.com/event?eventName=" // + eventName
-        ;
+        "http://august-storm-139422.appspot.com/event.jsp?eventKey=" + eventKey + "&eventName=" + eventName;
 
       ActionUtil.sendEmail(emailAddr, subject, body);
     } catch (Exception e) {

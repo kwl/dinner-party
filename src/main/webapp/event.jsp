@@ -5,7 +5,12 @@
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
 <%@ page import="com.google.appengine.api.datastore.Key" %>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
+<%@ page import="com.google.appengine.api.datastore.Query" %>
+<%@ page import="com.google.appengine.api.users.User" %>
+<%@ page import="com.google.appengine.api.users.UserService" %>
+<%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 
 
 <html>
@@ -22,7 +27,12 @@
   String name = request.getParameter("eventName");
   Key eventKey = KeyFactory.stringToKey(eventKeyStr);
   //String name = (String) datastore.get(eventKey).getProperty("name");
+
+  UserService userService = UserServiceFactory.getUserService();
+  if (!userService.isUserLoggedIn()) {
 %>
+  Please <a href="<%= userService.createLoginURL(request.getRequestURI()) %>">sign in</a>
+<%} %>
 
 <p><h2><%=name%></h2></p>
 <!-- <form action="/event" method="get">
@@ -32,8 +42,8 @@
 <form action="/invite" method="post">
   <label for="invite">Invite guest (username@gmail.com):</label>
   <input type="text" name="guest" id="invite">
-  <input type="hidden" name="eventName" value=<%=name%>>
   <input type="hidden" name="eventKey" value=<%=eventKeyStr%>>
+  <input type="hidden" name="eventName" value=<%=name%>>
   <input type="submit" value="Share">
 </form>
 
@@ -45,6 +55,9 @@
 
 <p><h4>Guests</h4></p>
 <!-- TODO list guests, from datastore -->
+<table border="1">
+<th>Email</th>
+<th>Bringing</th>
 <%
   @SuppressWarnings("unchecked") // Cast can't verify generic type
   ArrayList<String> attendees = (ArrayList<String>) datastore.get(eventKey).getProperty("attendees");
@@ -52,22 +65,37 @@
     System.out.println("     NULL attendees!!\n");
   }
   String hostEmail = (String) datastore.get(eventKey).getProperty("host");
+  Query query;
+  Entity guest;
+  String bringing = "";
   for (String email: attendees) {
     if (! email.equals(hostEmail)) {
+      query = new Query("Guest").setAncestor(eventKey).setFilter(new Query.FilterPredicate("user", Query.FilterOperator.EQUAL, email));
+      guest = datastore.prepare(query).asSingleEntity();
+      if (guest == null) {System.out.println("\n   null guest");}
+      bringing = (String) guest.getProperty("bringing");
+      if (bringing == null) {
+        bringing = "";
+        System.out.println("\n   Bringing was null");
+      }
 %>
-    <%=email%></br>
+    <tr>
+    <td><%=email%></td>
+    <td><%=bringing%></td>
+    </tr>
 <%
     } // end-if email comparison
   } // end-for all guest emails
 %>
+</table>
 
 </br></br></br>
 
 <form action="/rsvp" method="post">
   <label>What are you bringing?</label>
   <input type="text" name="bring">
-  <input type="hidden" name="eventName" value=<%=name%>>
   <input type="hidden" name="eventKey" value=<%=eventKeyStr%>>
+  <input type="hidden" name="eventName" value=<%=name%>>
   <input type="submit" value="Go">
 </form>
 
