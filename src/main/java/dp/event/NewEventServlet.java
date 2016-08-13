@@ -74,7 +74,11 @@ public class NewEventServlet extends HttpServlet {
       if (txn.isActive()) txn.rollback();
     }
 
-    //String eventName = getBody(req);
+    // Put host as Guest entity for this Event
+    Entity host = new Entity("Guest", eventKey); // event: parent
+    host.setProperty("user", user.getEmail());
+    host.setProperty("bringing", "");
+    datastore.put(host);
 
     //resp.sendRedirect("/event.jsp?eventName="+eventName); //TODO update this
     ActionUtil.gotoEvent(this, resp, KeyFactory.keyToString(eventKey), eventName);

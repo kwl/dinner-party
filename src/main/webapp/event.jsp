@@ -82,6 +82,13 @@ if (!userService.isUserLoggedIn()) {
 <div>
 <h4>Host</h4>
 <%= datastore.get(eventKey).getProperty("host") %>
+<%
+  Entity host = datastore.prepare(new Query("Guest", eventKey).setFilter(new Query.FilterPredicate("user", Query.FilterOperator.EQUAL, ((String)event.getProperty("host"))))).asSingleEntity();
+  String hostBringing = (String) host.getProperty("bringing");
+  if (hostBringing != null && hostBringing.length()>0) {
+%>
+is providing <%=hostBringing%>
+<%}%>
 </div>
 
 <!-- List guests and what they're bringing to event in table -->
