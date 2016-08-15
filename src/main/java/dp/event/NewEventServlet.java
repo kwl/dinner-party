@@ -42,7 +42,7 @@ public class NewEventServlet extends HttpServlet {
     String eventName = req.getParameter("eventName");
     event.setProperty("name", eventName);
     event.setProperty("host", user.getEmail());
-    event.setProperty("description", "");
+    event.setProperty("description", req.getParameter("description"));
     ArrayList<String> attendees = new ArrayList<String>();
     attendees.add(user.getEmail()); // add host to attending
     event.setProperty("attendees", attendees);

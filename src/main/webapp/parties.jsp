@@ -56,7 +56,7 @@
 %>
   <form action="event.jsp"+event method="get">
       <input type="hidden" name="eventKey" value=<%=eventKey%> />
-      <input type="submit" name="eventName" placeholder="Event" value=<%=event%> />
+      <input type="submit" name="eventName" value="<%=event%>" />
   </form>
 <%
     } // end-for looping through Person's events
@@ -71,6 +71,8 @@
 <form action="/event" method="post">
   <label>Create new dinner party named:</label>
   <input type="text" name="eventName">
+  </br><label>Optional description:</label>
+  <div><textarea name="description" rows="3" cols="60"></textarea></div>
   <input type="submit" value="Create event">
 </form>
 

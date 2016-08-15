@@ -1,4 +1,3 @@
-<%-- //[START all]--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
 <%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
@@ -27,7 +26,11 @@ DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 String eventKeyStr = request.getParameter("eventKey");
 String name = request.getParameter("eventName");
 Key eventKey = KeyFactory.stringToKey(eventKeyStr);
-//String name = (String) datastore.get(eventKey).getProperty("name");
+// try {
+//   name = (String) datastore.get(eventKey).getProperty("name");
+// } catch (EntityNotFoundException e) {
+//   e.printStackTrace();
+// }
 
 UserService userService = UserServiceFactory.getUserService();
 if (!userService.isUserLoggedIn()) {
@@ -64,10 +67,17 @@ if (!userService.isUserLoggedIn()) {
   else {
 %>
 
+<!-- Show event name and description at top of page -->
 <p><h2><%=name%></h2></p>
-<!-- <form action="/event" method="get">
-  <input type="hidden" name="eventKey" 
-</form> -->
+<%
+  String description = "";
+  try {
+    description = (String) datastore.get(eventKey).getProperty("description");
+  } catch (EntityNotFoundException e) {
+    e.printStackTrace();
+  }
+%>
+<p>Details: <%=description%></p>
 
 <!-- Invite guests to event via email -->
 <form action="/invite" method="post">
@@ -147,4 +157,3 @@ is providing <%=hostBringing%>
 
 </body>
 </html>
-<%-- //[END all]--%>
