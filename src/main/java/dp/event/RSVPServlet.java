@@ -52,13 +52,18 @@ public class RSVPServlet extends HttpServlet {
     // Add "bringing" RSVP to correct guest & event
     // Transaction for retrieving and updating Guest
     String bringing = req.getParameter("bring");
+    String comment = req.getParameter("comment");
     String eventKeyStr = req.getParameter("eventKey");
     Key eventKey = KeyFactory.stringToKey(eventKeyStr);
+    Entity guest;
     Transaction txn = datastore.beginTransaction();
     try {
       Query q = new Query("Guest", eventKey).setFilter(new Query.FilterPredicate("user", Query.FilterOperator.EQUAL, user.getEmail()));
-        Entity guest = datastore.prepare(txn, q).asSingleEntity();
-        guest.setProperty("bringing", bringing);
+        Iterable<Entity> guests = datastore.prepare(q).asIterable();
+        guest = guests.iterator().next();
+        // Entity guest = datastore.prepare(txn, q).asSingleEntity();
+        if (bringing.length() > 0) guest.setProperty("bringing", bringing);
+        if (comment.length() > 0) guest.setProperty("comment", comment);
         datastore.put(txn, guest);
       txn.commit();
     } finally {

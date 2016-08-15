@@ -60,6 +60,7 @@ public class AddGuestServlet extends HttpServlet {
     Entity guest = new Entity("Guest", eventKey); // event: parent
     guest.setProperty("user", guestEmail);
     guest.setProperty("bringing", "");
+    // guest.setProperty("comment", "");
     // Set repeated property listing post IDs
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

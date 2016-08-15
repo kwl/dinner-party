@@ -26,11 +26,11 @@ DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 String eventKeyStr = request.getParameter("eventKey");
 String name = request.getParameter("eventName");
 Key eventKey = KeyFactory.stringToKey(eventKeyStr);
-// try {
-//   name = (String) datastore.get(eventKey).getProperty("name");
-// } catch (EntityNotFoundException e) {
-//   e.printStackTrace();
-// }
+try { // Gets full event name; fixes first-word bug
+  name = (String) datastore.get(eventKey).getProperty("name");
+} catch (EntityNotFoundException e) {
+  e.printStackTrace();
+}
 
 UserService userService = UserServiceFactory.getUserService();
 if (!userService.isUserLoggedIn()) {
@@ -78,6 +78,7 @@ if (!userService.isUserLoggedIn()) {
   }
 %>
 <p>Details: <%=description%></p>
+<p><hr width="50%" align="left" noshade></p>
 
 <!-- Invite guests to event via email -->
 <form action="/invite" method="post">
@@ -95,17 +96,24 @@ if (!userService.isUserLoggedIn()) {
 <%
   Entity host = datastore.prepare(new Query("Guest", eventKey).setFilter(new Query.FilterPredicate("user", Query.FilterOperator.EQUAL, ((String)event.getProperty("host"))))).asSingleEntity();
   String hostBringing = (String) host.getProperty("bringing");
+  String hostComment = (String) host.getProperty("comment");
   if (hostBringing != null && hostBringing.length()>0) {
 %>
 is providing <%=hostBringing%>
+<%
+  }
+  if (hostComment != null && hostComment.length()>0) {
+%>
+<br/><br/>Note: <%=hostComment%>
 <%}%>
 </div>
 
-<!-- List guests and what they're bringing to event in table -->
+<!-- List guests and what they will bring to event in table -->
 <p><h4>Guests</h4></p>
-<table border="1">
+<table class="myTable">
 <th>Email</th>
 <th>Bringing</th>
+<th>Comments</th>
 <%
   //@SuppressWarnings("unchecked") // Cast can't verify generic type
   //ArrayList<String> attendees = (ArrayList<String>) datastore.get(eventKey).getProperty("attendees");
@@ -116,20 +124,27 @@ is providing <%=hostBringing%>
   Query query;
   Entity guest;
   String bringing = "";
+  String comment = "";
   for (String email: attendees) {
     if (! email.equals(hostEmail)) {
       query = new Query("Guest").setAncestor(eventKey).setFilter(new Query.FilterPredicate("user", Query.FilterOperator.EQUAL, email));
-      guest = datastore.prepare(query).asSingleEntity();
-      if (guest == null) {System.out.println("\n   null guest");}
+      Iterable<Entity> guests = datastore.prepare(query).asIterable();
+      guest = guests.iterator().next();
+      // guest = datastore.prepare(query).asSingleEntity();
       bringing = (String) guest.getProperty("bringing");
       if (bringing == null) {
         bringing = "";
         System.out.println("\n   Bringing was null");
       }
+      comment = (String) guest.getProperty("comment");
+      if (comment == null) {
+        comment = "";
+      }
 %>
     <tr>
     <td><%=email%></td>
     <td><%=bringing%></td>
+    <td><%=comment%></td>
     </tr>
 <%
     } // end-if email comparison
@@ -137,12 +152,14 @@ is providing <%=hostBringing%>
 %>
 </table>
 
-</br></br></br>
+<br/><br/><br/>
 
 <!-- Submit what signed-in user is bringing to event -->
 <form action="/rsvp" method="post">
   <label>What are you bringing?</label>
   <input type="text" name="bring">
+  <br/><label>Any comments?</label>
+  <div><textarea name="comment" rows="3" cols="60"></textarea></div>
   <input type="hidden" name="eventKey" value=<%=eventKeyStr%>>
   <input type="hidden" name="eventName" value=<%=name%>>
   <input type="submit" value="Go">

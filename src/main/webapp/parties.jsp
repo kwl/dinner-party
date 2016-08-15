@@ -36,7 +36,7 @@
 <%  } else {
     User user = userService.getCurrentUser();
 %>
-  Welcome, <%= user.getNickname() %>! </br>
+  Welcome, <%= user.getNickname() %>! <br/>
   <!-- {@code (<a href="<%=userService.createLogoutURL("/")%>">log out</a>>)} -->
   <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">Sign out</a>
 
@@ -62,16 +62,16 @@
     } // end-for looping through Person's events
   } catch (EntityNotFoundException e) {
     System.out.println("Signed-in user's Person entity not found");
-    e.printStackTrace();
+    System.out.println("Person only created on event or invite");
   }
 %>
 
-</br></br>
+<br/><br/>
 
 <form action="/event" method="post">
   <label>Create new dinner party named:</label>
   <input type="text" name="eventName">
-  </br><label>Optional description:</label>
+  <br/><label>Optional description:</label>
   <div><textarea name="description" rows="3" cols="60"></textarea></div>
   <input type="submit" value="Create event">
 </form>

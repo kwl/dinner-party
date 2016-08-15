@@ -2,3 +2,22 @@ body {
     font-family: Verdana, Helvetica, sans-serif;
     background-color: #F78152;
 }
+
+/* label {
+	display:block;
+	position:relative;
+	/*padding-left:120px;*/ /* adjust if necessary */
+/*	} 
+label > span {
+	position:absolute;
+	left:0;
+} */
+
+table.myTable { 
+  border-collapse: collapse; 
+}
+table.myTable td, 
+table.myTable th { 
+  border: 1px solid;
+  padding: 8px; 
+}
