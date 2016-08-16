@@ -15,18 +15,21 @@ import dp.util.ActionUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+// for chat msgs
+// import com.google.appengine.api.xmpp.JID;
+// import com.google.appengine.api.xmpp.Message;
+// import com.google.appengine.api.xmpp.MessageBuilder;
+// import com.google.appengine.api.xmpp.SendResponse;
+// import com.google.appengine.api.xmpp.XMPPService;
+// import com.google.appengine.api.xmpp.XMPPServiceFactory;
+
+// import java.util.logging.Logger;
 
 
 /**
@@ -34,21 +37,46 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AddGuestServlet extends HttpServlet {
 
+  //private static final Logger log = Logger.getLogger(AddGuestServlet.class.getName());
+
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
+    // begin chat section
+    // JID jid = new JID(req.getParameter("guest"));
+    // String msgBody = "Someone has sent you a gift on Example.com. To view: http://example.com/gifts/";
+    // Message msg =
+    //     new MessageBuilder()
+    //         .withRecipientJids(jid)
+    //         .withBody(msgBody)
+    //         .build();
+
+    // boolean messageSent = false;
+    // XMPPService xmpp = XMPPServiceFactory.getXMPPService();
+    // SendResponse status = xmpp.sendMessage(msg);
+    // messageSent = (status.getStatusMap().get(jid) == SendResponse.Status.SUCCESS);
+
+    // log.info("Message sent? " + messageSent);
+    // end chat section
+
     String eventName = req.getParameter("eventName");
-    String event = req.getParameter("eventKey");
+    String eventKeyStr = req.getParameter("eventKey");
     String guestEmail = req.getParameter("guest");
-    //TODO fix eventKey... where to get this?
-    //Key eventKey = KeyFactory.createKey("Event", event);
-    Key eventKey = KeyFactory.stringToKey(event);
+    Key eventKey = KeyFactory.stringToKey(eventKeyStr);
     addGuest(eventKey, guestEmail);
 
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    try {
+      Entity event = datastore.get(eventKey);
+      eventName = (String) event.getProperty("name");
+    } catch (EntityNotFoundException e) {
+      System.out.println("event entity not found on invite");
+    }
+
     // Send email to invite guest
-    emailInvite(guestEmail, event, eventName);
+    emailInvite(guestEmail, eventKeyStr, eventName);
     //resp.sendRedirect("/event.jsp?eventKey="+event); // "...?" + event id 
-    ActionUtil.gotoEvent(this, resp, event, req.getParameter("eventName"));
+    ActionUtil.gotoEvent(this, resp, eventKeyStr, eventName);
   }
 
   /**
@@ -112,14 +140,28 @@ public class AddGuestServlet extends HttpServlet {
       User user = userService.getCurrentUser();
 
       String subject = user.getNickname() + " invites you to a dinner party!";
-      String body = "Dear " + emailAddr + ",\n\n" + user.getEmail() + " invites you to the dinner party \"" + //get groupname +
-        "\" in Dinner Party Planner. See the event at " +
-        "http://august-storm-139422.appspot.com/event.jsp?eventKey=" + eventKey + "&eventName=" + eventName;
+      String body = "Dear " + emailAddr + ",\n\n" + user.getEmail() + " invites you to the dinner party \"" + eventName +
+        "\" in Potluck Planner. See the event at " +
+        "http://august-storm-139422.appspot[dot]com/event.jsp?eventKey=" + eventKey + "&eventName=" + processEventName(eventName);
 
       ActionUtil.sendEmail(emailAddr, subject, body);
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Replace spaces in event name with + for URL params
+   */
+  private String processEventName(String eventName) {
+    String result = "";
+    StringTokenizer splitter = new StringTokenizer(eventName);
+    result += splitter.nextToken();
+    while (splitter.hasMoreElements()) {
+      result += "+";
+      result += splitter.nextToken();
+    }
+    return result;
   }
 
 }

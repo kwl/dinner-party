@@ -7,4 +7,9 @@
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
+
+    <static-files>
+ 		<include path="/favicon.ico" />
+ 		<include path="/stylesheets/main.css" />
+	</static-files>
 </appengine-web-app>

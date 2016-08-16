@@ -1,4 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<%@ page import="com.google.appengine.api.blobstore.BlobstoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.blobstore.BlobstoreService" %>
 <%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
 <%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
 <%@ page import="com.google.appengine.api.datastore.Entity" %>
@@ -22,6 +25,8 @@
 
 <%
 // Set up for accessing data
+//qBlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+
 DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 String eventKeyStr = request.getParameter("eventKey");
 String name = request.getParameter("eventName");

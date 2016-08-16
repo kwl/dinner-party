@@ -29,11 +29,15 @@ public class ActionUtil {
     try {
       Message msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress("kathyli@google.com", "Dinner Party Planner"));
+      //msg.setFrom(new InternetAddress("august-storm-139422.appspot.gserviceaccount.com", "Dinner Party Planner"));
       msg.addRecipient(Message.RecipientType.TO, 
         new InternetAddress(receiveAddr, receiveAddr));
       msg.setSubject(subject);
 
-      body += "\n\n\nOK";
+      body += "\n\nPotluck Planner is an app to help you organize";
+      body += " get togethers with people you know. Create events";
+      body += ", invite friends, RSVP and see everyone's comments!";
+      System.out.println("ActionUtil body: " + body);
       msg.setText(body);
       Transport.send(msg);
       System.out.println("\nSent email w/ subject " + subject + " to recipient " + receiveAddr + "\n");
