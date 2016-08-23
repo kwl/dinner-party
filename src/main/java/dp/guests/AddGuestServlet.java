@@ -143,6 +143,7 @@ public class AddGuestServlet extends HttpServlet {
       String body = "Dear " + emailAddr + ",\n\n" + user.getEmail() + " invites you to the dinner party \"" + eventName +
         "\" in Potluck Planner. See the event at " +
         "http://august-storm-139422.appspot[dot]com/event.jsp?eventKey=" + eventKey + "&eventName=" + processEventName(eventName);
+      body += " (replacing [dot] with a period).";
 
       ActionUtil.sendEmail(emailAddr, subject, body);
     } catch (Exception e) {
